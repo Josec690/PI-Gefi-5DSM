@@ -1,0 +1,6 @@
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/Josec690/Frontend-Gefi_5DSM.git
+[submodule "backend"]
+	path = backend
+	url = https://github.com/Josec690/Backend-Gefi_5DSM.git
