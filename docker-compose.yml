@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  # Serviço do Backend
+  gefi-back:
+    build: ./backend
+    container_name: gefi-backend-container
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app # Permite atualizar o código sem reiniciar o container
+    networks:
+      - gefi-network
+
+  # Serviço do Frontend
+  gefi-front:
+    build: ./frontend
+    container_name: gefi-frontend-container
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/App
+    depends_on:
+      - gefi-back # Garante que o back sobe antes do front
+    networks:
+      - gefi-network
+
+networks:
+  gefi-network:
+    driver: bridge
