@@ -1,14 +1,34 @@
-version: '3.8'
-
 services:
+  # Serviço do MongoDB local
+  mongo:
+    image: mongo:7
+    container_name: gefi-mongo-container
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - gefi-network
+
   # Serviço do Backend
   gefi-back:
     build: ./backend
     container_name: gefi-backend-container
+    env_file:
+      - ./backend/.env
     ports:
       - "5000:5000"
     volumes:
       - ./backend:/app # Permite atualizar o código sem reiniciar o container
+    depends_on:
+      mongo:
+        condition: service_healthy
     networks:
       - gefi-network
 
@@ -16,10 +36,12 @@ services:
   gefi-front:
     build: ./frontend
     container_name: gefi-frontend-container
+    command: sh -c "npm install; npm run web -- --host lan --port 3000"
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/App
+      - ./frontend:/app
+      - /app/node_modules
     depends_on:
       - gefi-back # Garante que o back sobe antes do front
     networks:
@@ -28,3 +50,6 @@ services:
 networks:
   gefi-network:
     driver: bridge
+
+volumes:
+  mongo_data:
